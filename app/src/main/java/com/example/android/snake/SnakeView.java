@@ -51,7 +51,7 @@ import java.util.concurrent.ExecutionException;
  *
  */
 public class SnakeView extends TileView {
-    //private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
+    private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
     //private MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.hiss);
 
     private GameThread gameThread;
@@ -101,7 +101,7 @@ public class SnakeView extends TileView {
      * mLastMove: tracks the absolute time when the snake last moved, and is used
      * to determine if a move should be made based on mMoveDelay.
      */
-    private long mLastMove;
+    private long mLastMove = 0;
 
     /**
      * mStatusText: text shows to the user in some run states
@@ -229,7 +229,7 @@ public class SnakeView extends TileView {
                 initNewGame();
                 //setBackgroundPic("http://lorempixel.com/720/1280/");
                 setMode(RUNNING);
-                update();
+                //update();
             }
 
             if (mMode == PAUSE) {
@@ -238,7 +238,7 @@ public class SnakeView extends TileView {
              * we left off.*/
 
                 setMode(RUNNING);
-                update();
+                //update();
             }
             return true;
         }
@@ -252,7 +252,7 @@ public class SnakeView extends TileView {
                 else
                     setBackgroundPic("http://i.imgur.com/3sw7QcP.jpg");
                 setMode(RUNNING);
-                update();
+                //update();
             }
             return true;
         }
@@ -332,37 +332,8 @@ public class SnakeView extends TileView {
 
     }
     public boolean onTouchEvent(MotionEvent event){
-        //this.gDetect.onTouchEvent(event);
+        this.gDetect.onTouchEvent(event);
         //return super.onTouchEvent(event);
-        if (mMode == READY | mMode == LOSE | mMode == WIN) {
-
-           /*  * At the beginning of the game, or the end of a previous one,
-             * we should start a new game.*/
-
-            initNewGame();
-            //setBackgroundPic("http://lorempixel.com/720/1280/");
-            setMode(RUNNING);
-            update();
-        }
-
-        if (mMode == PAUSE) {
-
-            /* * If the game is merely paused, we should just continue where
-             * we left off.*/
-
-            setMode(RUNNING);
-            update();
-        }
-        if (mMode == RUNNING) {
-            if (mDirection == NORTH)
-                mNextDirection = EAST;
-            else if (mDirection == EAST)
-                mNextDirection = SOUTH;
-            else if (mDirection == SOUTH)
-                mNextDirection = WEST;
-            else if (mDirection == WEST)
-                mNextDirection = NORTH;
-        }
         return true;
     }
 
@@ -548,7 +519,7 @@ public class SnakeView extends TileView {
         if (newMode == RUNNING & oldMode != RUNNING) {
             //mStatusImage.setVisibility(View.INVISIBLE);
             mStatusText.setVisibility(View.INVISIBLE);
-            update();
+            //update();
             return;
         }
 
@@ -616,13 +587,15 @@ public class SnakeView extends TileView {
      * state, determining if a move should be made, updating the snake's location.
      */
     public void update() {
+        /*
         if (mMode == RUNNING) {
             clearTiles();
             updateWalls();
             updateSnake();
             updateApples();
         }
-        /*
+        */
+
         if (mMode == RUNNING) {
             long now = System.currentTimeMillis();
 
@@ -633,9 +606,9 @@ public class SnakeView extends TileView {
                 updateApples();
                 mLastMove = now;
             }
-            mRedrawHandler.sleep(mMoveDelay);
+            //mRedrawHandler.sleep(mMoveDelay);
         }
-        */
+
 
     }
 

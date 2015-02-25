@@ -6,7 +6,7 @@ import android.graphics.Canvas;
  * Created by Nadir on 2/24/2015.
  */
 public class GameThread extends Thread {
-    static final long FPS = 10;
+    static final long FPS = 20;
     private SnakeView view;
     private boolean running = false;
 
@@ -26,23 +26,28 @@ public class GameThread extends Thread {
         while (running) {
             Canvas c = null;
             startTime = System.currentTimeMillis();
+            //view.update();
+
             try {
                 c = view.getHolder().lockCanvas();
                 synchronized (view.getHolder()) {
                     view.update();
-                    view.invalidate();
+                    view.onDraw(c);
+                    //view.postInvalidate();
+
                 }
             } finally {
                 if (c != null) {
                     view.getHolder().unlockCanvasAndPost(c);
                 }
             }
+
             sleepTime = ticksPS-(System.currentTimeMillis() - startTime);
             try {
                 if (sleepTime > 0)
                     sleep(sleepTime);
                 else
-                    sleep(10);
+                    sleep(300);
             } catch (Exception e) {}
         }
     }
