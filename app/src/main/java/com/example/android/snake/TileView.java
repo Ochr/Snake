@@ -20,9 +20,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.SurfaceView;
 import android.view.View;
 
 
@@ -31,7 +33,7 @@ import android.view.View;
  * drawables.
  * 
  */
-public class TileView extends View {
+public class TileView extends SurfaceView {
 
     /**
      * Parameters controlling the size of the tiles and their range within view.

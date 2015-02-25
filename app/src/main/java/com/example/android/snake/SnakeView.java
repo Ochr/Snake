@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,8 +51,12 @@ import java.util.concurrent.ExecutionException;
  *
  */
 public class SnakeView extends TileView {
-    private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
-    private MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.hiss);
+    //private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
+    //private MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.hiss);
+
+    private GameThread gameThread;
+    private SurfaceHolder holder;
+
     private static final String TAG = "SnakeView";
 
     /**
@@ -121,7 +126,7 @@ public class SnakeView extends TileView {
      * set ourselves as a target and we can use the sleep()
      * function to cause an update/invalidate to occur at a later date.
      */
-    private RefreshHandler mRedrawHandler = new RefreshHandler();
+    //private RefreshHandler mRedrawHandler = new RefreshHandler();
 
     class RefreshHandler extends Handler {
 
@@ -165,6 +170,35 @@ public class SnakeView extends TileView {
         loadTile(RED_STAR, r.getDrawable(R.drawable.redstar));
         loadTile(YELLOW_STAR, r.getDrawable(R.drawable.yellowstar));
         loadTile(GREEN_STAR, r.getDrawable(R.drawable.greenstar));
+
+        gameThread = new GameThread(this);
+        holder = getHolder();
+        holder.addCallback(new SurfaceHolder.Callback() {
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                boolean retry = true;
+                gameThread.setRunning(false);
+                while (retry) {
+                    try {
+                        gameThread.join();
+                        retry = false;
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                gameThread.setRunning(true);
+                gameThread.start();
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format,
+                                       int width, int height) {
+            }
+        });
     }
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public void setBackgroundPic(String src) {
@@ -193,7 +227,7 @@ public class SnakeView extends TileView {
              * we should start a new game.*/
 
                 initNewGame();
-                setBackgroundPic("http://lorempixel.com/720/1280/");
+                //setBackgroundPic("http://lorempixel.com/720/1280/");
                 setMode(RUNNING);
                 update();
             }
@@ -270,8 +304,7 @@ public class SnakeView extends TileView {
                 connection.setDoInput(true);
                 connection.connect();
                 InputStream input = connection.getInputStream();
-                Bitmap myBitmap = null;
-                myBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), mBackground.getWidth(), mBackground.getHeight(), true);
+                Bitmap myBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), mBackground.getWidth(), mBackground.getHeight(), true);
                 return myBitmap;
             } catch (IOException e) {
                 // Log exception
@@ -299,8 +332,37 @@ public class SnakeView extends TileView {
 
     }
     public boolean onTouchEvent(MotionEvent event){
-        this.gDetect.onTouchEvent(event);
+        //this.gDetect.onTouchEvent(event);
         //return super.onTouchEvent(event);
+        if (mMode == READY | mMode == LOSE | mMode == WIN) {
+
+           /*  * At the beginning of the game, or the end of a previous one,
+             * we should start a new game.*/
+
+            initNewGame();
+            //setBackgroundPic("http://lorempixel.com/720/1280/");
+            setMode(RUNNING);
+            update();
+        }
+
+        if (mMode == PAUSE) {
+
+            /* * If the game is merely paused, we should just continue where
+             * we left off.*/
+
+            setMode(RUNNING);
+            update();
+        }
+        if (mMode == RUNNING) {
+            if (mDirection == NORTH)
+                mNextDirection = EAST;
+            else if (mDirection == EAST)
+                mNextDirection = SOUTH;
+            else if (mDirection == SOUTH)
+                mNextDirection = WEST;
+            else if (mDirection == WEST)
+                mNextDirection = NORTH;
+        }
         return true;
     }
 
@@ -457,8 +519,7 @@ public class SnakeView extends TileView {
         String except;
         try {
             //mBackground.setImageBitmap((mSourceBitmap));
-            Bitmap cropped = null;
-            cropped = Bitmap.createBitmap(mSourceBitmap, START_WIDTH, START_HEIGHT, mWidth, mHeight, null, false);
+            Bitmap cropped = Bitmap.createBitmap(mSourceBitmap, START_WIDTH, START_HEIGHT, mWidth, mHeight, null, false);
             mBackground.setImageBitmap(cropped);
         }
         catch (java.lang.IllegalArgumentException e) {
@@ -469,10 +530,10 @@ public class SnakeView extends TileView {
     }
     public void endGame() {
         mFirstBlockHit = false;
-        mBackground.setVisibility(View.INVISIBLE);
+        //mBackground.setVisibility(View.INVISIBLE);
         mWidth = START_WIDTH; mHeight = START_HEIGHT;
-        mediaPlayer.start();
-        mStatusImage.setVisibility(View.VISIBLE);
+        //mediaPlayer.start();
+        //mStatusImage.setVisibility(View.VISIBLE);
     }
     /**
      * Updates the current mode of the application (RUNNING or PAUSED or the like)
@@ -485,7 +546,7 @@ public class SnakeView extends TileView {
         mMode = newMode;
 
         if (newMode == RUNNING & oldMode != RUNNING) {
-            mStatusImage.setVisibility(View.INVISIBLE);
+            //mStatusImage.setVisibility(View.INVISIBLE);
             mStatusText.setVisibility(View.INVISIBLE);
             update();
             return;
@@ -554,7 +615,14 @@ public class SnakeView extends TileView {
      * Handles the basic update loop, checking to see if we are in the running
      * state, determining if a move should be made, updating the snake's location.
      */
-    public synchronized void update() {
+    public void update() {
+        if (mMode == RUNNING) {
+            clearTiles();
+            updateWalls();
+            updateSnake();
+            updateApples();
+        }
+        /*
         if (mMode == RUNNING) {
             long now = System.currentTimeMillis();
 
@@ -567,6 +635,7 @@ public class SnakeView extends TileView {
             }
             mRedrawHandler.sleep(mMoveDelay);
         }
+        */
 
     }
 
@@ -597,15 +666,6 @@ public class SnakeView extends TileView {
     public static int randInt(int min, int max) {
         int randomNum = RNG.nextInt((max - min) + 1) + min;
         return randomNum;
-    }
-    public void timerDelayRemoveView(long time, final ImageView v) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                v.setVisibility(View.INVISIBLE);
-            }
-        }, time);
-        v.setVisibility(View.VISIBLE);
     }
     /**
      * Figure out which way the snake is going, see if he's run into anything (the
@@ -675,7 +735,7 @@ public class SnakeView extends TileView {
                 addRandomApple();
                 mScore++;
                 mMoveDelay *= 0.9;
-                displayNewPortion();
+                //displayNewPortion();
                 growSnake = true;
             }
         }
