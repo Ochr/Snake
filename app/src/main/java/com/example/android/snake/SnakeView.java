@@ -53,7 +53,7 @@ import java.util.concurrent.ExecutionException;
 public class SnakeView extends TileView {
     private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
     //private MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.hiss);
-
+    private MediaPlayer mSnakeEatPlayer;
     protected GameThread gameThread;
     private SurfaceHolder holder;
     private boolean isPaused = false;
@@ -744,6 +744,21 @@ public class SnakeView extends TileView {
                 mScore++;
                 mMoveDelay *= 0.9;
                 //displayNewPortion();
+                if(mScore==1)
+                {
+                    mSnakeEatPlayer = MediaPlayer.create(getContext(), R.raw.snakeeat);
+                    mSnakeEatPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            if (mp == mSnakeEatPlayer) {
+                                mSnakeEatPlayer.start();
+                            }
+                        }
+                    });
+                }
+                else {
+                    mSnakeEatPlayer.start();
+                }
                 growSnake = true;
             }
         }

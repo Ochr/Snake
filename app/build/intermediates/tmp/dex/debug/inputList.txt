@@ -1,2 +1,2 @@
-C:\Users\Nadir\AndroidStudioProjects\Snake\app\build\intermediates\classes\debug
-C:\Users\Nadir\AndroidStudioProjects\Snake\app\build\intermediates\pre-dexed\debug\support-v4-18.0.0-592e7e4445d4fd56e07c4c8b664be8907593d0dd.jar
+/Users/classykeyser/Desktop/Git/Snake/app/build/intermediates/classes/debug
+/Users/classykeyser/Desktop/Git/Snake/app/build/intermediates/pre-dexed/debug/support-v4-18.0.0-99a1b270c169bba055862cd45e000414d59b598e.jar

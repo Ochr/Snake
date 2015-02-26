@@ -25,9 +25,10 @@ containing a value of this type.
         public static final int yellowstar=0x7f020003;
     }
     public static final class id {
-        public static final int image=0x7f070001;
+        public static final int background=0x7f070001;
+        public static final int image=0x7f070002;
         public static final int snake=0x7f070000;
-        public static final int text=0x7f070002;
+        public static final int text=0x7f070003;
     }
     public static final class layout {
         public static final int snake_layout=0x7f040000;
@@ -37,6 +38,7 @@ containing a value of this type.
     }
     public static final class raw {
         public static final int hiss=0x7f050000;
+        public static final int snakeeat=0x7f050001;
     }
     public static final class string {
         public static final int mode_lose_prefix=0x7f060000;
