@@ -191,6 +191,7 @@ public class SnakeView extends TileView {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 gameThread.setRunning(true);
+                setWillNotDraw(false);
                 gameThread.start();
             }
 
@@ -501,6 +502,8 @@ public class SnakeView extends TileView {
     }
     public void endGame() {
         mFirstBlockHit = false;
+        boolean retry = true;
+        //gameThread.setRunning(false);
         //mBackground.setVisibility(View.INVISIBLE);
         mWidth = START_WIDTH; mHeight = START_HEIGHT;
         //mediaPlayer.start();
@@ -512,6 +515,7 @@ public class SnakeView extends TileView {
      *
      * @param newMode
      */
+    private CharSequence str = "";
     public void setMode(int newMode) {
         int oldMode = mMode;
         mMode = newMode;
@@ -524,8 +528,9 @@ public class SnakeView extends TileView {
         }
 
         Resources res = getContext().getResources();
-        CharSequence str = "";
+
         if (newMode == PAUSE) {
+
             str = res.getText(R.string.mode_pause);
         }
         if (newMode == READY) {
@@ -541,9 +546,17 @@ public class SnakeView extends TileView {
             str = res.getString(R.string.mode_win_prefix) + mScore
                     + res.getString(R.string.mode_win_suffix);
         }
-
+        mStatusText.post(new Runnable() {
+            @Override
+            public void run() {
+                mStatusText.setText(str);
+                mStatusText.setVisibility(View.VISIBLE);
+            }
+        });
+        /*
         mStatusText.setText(str);
         mStatusText.setVisibility(View.VISIBLE);
+        */
     }
 
     /**
@@ -587,14 +600,14 @@ public class SnakeView extends TileView {
      * state, determining if a move should be made, updating the snake's location.
      */
     public void update() {
-        /*
+/*
         if (mMode == RUNNING) {
             clearTiles();
             updateWalls();
             updateSnake();
             updateApples();
         }
-        */
+*/
 
         if (mMode == RUNNING) {
             long now = System.currentTimeMillis();
