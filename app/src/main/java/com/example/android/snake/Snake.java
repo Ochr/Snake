@@ -68,8 +68,8 @@ public class Snake extends Activity {
 
         mSnakeView = (SnakeView) findViewById(R.id.snake);
         mSnakeView.setTextView((TextView) findViewById(R.id.text));
-        //mSnakeView.setImageView((ImageView) findViewById(R.id.image));
-        //mSnakeView.setBackgroundView((ImageView) findViewById(R.id.background));
+        mSnakeView.setImageView((ImageView) findViewById(R.id.image));
+        mSnakeView.setBackgroundView((ImageView) findViewById(R.id.background));
         //mBackground = (ImageView) findViewById(R.id.background);
 
 
@@ -99,6 +99,12 @@ public class Snake extends Activity {
         // Pause the game along with the activity
         mSnakeView.setMode(SnakeView.PAUSE);
     }
+    /*
+    @Override
+    protected void onResume() {
+        mSnakeView.resume();
+    }
+    */
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

@@ -54,8 +54,9 @@ public class SnakeView extends TileView {
     private GestureDetectorCompat gDetect = new GestureDetectorCompat(getContext(), new GestureListener());
     //private MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.hiss);
 
-    private GameThread gameThread;
+    protected GameThread gameThread;
     private SurfaceHolder holder;
+    private boolean isPaused = false;
 
     private static final String TAG = "SnakeView";
 
@@ -107,7 +108,7 @@ public class SnakeView extends TileView {
      * mStatusText: text shows to the user in some run states
      */
     private TextView mStatusText;
-    private ImageView mStatusImage;
+    private ImageView mEndImage;
 
     /**
      * mSnakeTrail: a list of Coordinates that make up the snake's body
@@ -190,6 +191,8 @@ public class SnakeView extends TileView {
 
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                if (isPaused)
+                    resume();
                 gameThread.setRunning(true);
                 setWillNotDraw(false);
                 gameThread.start();
@@ -201,6 +204,12 @@ public class SnakeView extends TileView {
             }
         });
     }
+
+    public void resume() {
+        if (!gameThread.isAlive())
+            gameThread = new GameThread(this);
+    }
+
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public void setBackgroundPic(String src) {
         ConnectionTask task = new ConnectionTask();
@@ -450,9 +459,9 @@ public class SnakeView extends TileView {
 
 
     public void setImageView(ImageView newView) {
-        mStatusImage = newView;
-        mStatusImage.setImageResource(R.drawable.snek);
-        mStatusImage.setVisibility(View.INVISIBLE);
+        mEndImage = newView;
+        mEndImage.setImageResource(R.drawable.snek);
+        mEndImage.setVisibility(View.INVISIBLE);
     }
     private ImageView mBackground;
 
@@ -502,12 +511,10 @@ public class SnakeView extends TileView {
     }
     public void endGame() {
         mFirstBlockHit = false;
-        boolean retry = true;
-        //gameThread.setRunning(false);
         //mBackground.setVisibility(View.INVISIBLE);
         mWidth = START_WIDTH; mHeight = START_HEIGHT;
         //mediaPlayer.start();
-        //mStatusImage.setVisibility(View.VISIBLE);
+        //mEndImage.setVisibility(View.VISIBLE);
     }
     /**
      * Updates the current mode of the application (RUNNING or PAUSED or the like)
@@ -521,7 +528,22 @@ public class SnakeView extends TileView {
         mMode = newMode;
 
         if (newMode == RUNNING & oldMode != RUNNING) {
-            //mStatusImage.setVisibility(View.INVISIBLE);
+            isPaused = false;
+            /*
+            mEndImage.post(new Runnable() {
+                @Override
+                public void run() {
+                    mEndImage.setVisibility(View.INVISIBLE);
+                }
+            });
+            mStatusText.post(new Runnable() {
+                @Override
+                public void run() {
+                    mStatusText.setVisibility(View.INVISIBLE);
+                }
+            });
+            */
+            mEndImage.setVisibility(View.INVISIBLE);
             mStatusText.setVisibility(View.INVISIBLE);
             //update();
             return;
@@ -530,7 +552,7 @@ public class SnakeView extends TileView {
         Resources res = getContext().getResources();
 
         if (newMode == PAUSE) {
-
+            isPaused = true;
             str = res.getText(R.string.mode_pause);
         }
         if (newMode == READY) {
